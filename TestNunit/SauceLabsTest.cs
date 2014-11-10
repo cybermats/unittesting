@@ -120,7 +120,6 @@ namespace TestNunit
 
             var result = _driver.FindElement(By.ClassName("search-header")).Text;
             Assert.IsNotNull(result);
-            Assert.IsTrue(false);
         }
         [Test]
         public void SearchWorks()
