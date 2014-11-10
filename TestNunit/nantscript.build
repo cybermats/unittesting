@@ -21,7 +21,7 @@
 
 	<target name="test">
 		<nunit2>
-			<formatter type="Plain" usefile="true" extension=".txt" outputdir="results"/>
+			<formatter type="Xml" usefile="true" extension=".txt" outputdir="results"/>
 			<test assemblyname="bin/Release/TestNunit.dll" appconfig="bin/Release/TestNunit.dll.config" haltonfailure="true"/>
 		</nunit2>
 	</target>

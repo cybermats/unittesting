@@ -23,7 +23,7 @@ namespace TestNunit
         private readonly string _version;
         private readonly string _platform;
 
-        private const bool RunLocally = true;
+        private const bool RunLocally = false;
 
         public SauceLabsTest(string browser, string version, string platform)
         {
