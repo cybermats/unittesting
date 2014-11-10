@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--This file represents the results of running a test suite-->
+<test-results name="C:\Users\Mats\Documents\Visual Studio 2013\Projects\TestNunit\TestNunit\bin\Release\TestNunit.dll" total="3" errors="0" failures="1" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2014-11-10" time="12:19:33">
+  <environment nunit-version="2.6.0.12051" clr-version="4.0.30319.34014" os-version="Microsoft Windows NT 6.2.9200.0" platform="Win32NT" cwd="C:\Users\Mats\Documents\Visual Studio 2013\Projects\TestNunit\TestNunit" machine-name="MATS-BOKADIREKT" user="Mats" user-domain="MATS-BOKADIREKT" />
+  <culture-info current-culture="sv-SE" current-uiculture="sv-SE" />
+  <test-suite type="Assembly" name="C:\Users\Mats\Documents\Visual Studio 2013\Projects\TestNunit\TestNunit\bin\Release\TestNunit.dll" executed="True" result="Failure" success="False" time="49.251" asserts="0">
+    <results>
+      <test-suite type="Namespace" name="TestNunit" executed="True" result="Failure" success="False" time="49.233" asserts="0">
+        <results>
+          <test-suite type="ParameterizedFixture" name="SauceLabsTest" executed="True" result="Failure" success="False" time="49.232" asserts="0">
+            <results>
+              <test-suite type="TestFixture" name="SauceLabsTest(&quot;firefox&quot;,&quot;33&quot;,&quot;Windows 7&quot;)" executed="True" result="Failure" success="False" time="49.229" asserts="0">
+                <results>
+                  <test-case name="TestNunit.SauceLabsTest(&quot;firefox&quot;,&quot;33&quot;,&quot;Windows 7&quot;).LinkWorks" executed="True" result="Failure" success="False" time="12.303" asserts="4">
+                    <failure>
+                      <message><![CDATA[  Expected: True
+  But was:  False
+]]></message>
+                      <stack-trace><![CDATA[]]></stack-trace>
+                    </failure>
+                  </test-case>
+                  <test-case name="TestNunit.SauceLabsTest(&quot;firefox&quot;,&quot;33&quot;,&quot;Windows 7&quot;).PageTitle" executed="True" result="Success" success="True" time="6.176" asserts="2" />
+                  <test-case name="TestNunit.SauceLabsTest(&quot;firefox&quot;,&quot;33&quot;,&quot;Windows 7&quot;).SearchWorks" executed="True" result="Success" success="True" time="30.734" asserts="3" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

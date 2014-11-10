@@ -1,0 +1,9 @@
+Tests run: 3, Errors: 0, Failures: 1, Time: 28.740 seconds
+  Not run: 0, Invalid: 0, Ignored: 0, Skipped: 0
+
+Test Case Failures:
+1) TestNunit.SauceLabsTest("firefox","33","Windows 7").LinkWorks :   Expected: True
+  But was:  False
+
+
+
