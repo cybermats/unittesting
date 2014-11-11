@@ -46,11 +46,36 @@ namespace TestMSTest
             return caps;
         }
 
+        private void PrintVariable(string name)
+        {
+            string variable = Environment.GetEnvironmentVariable(name);
+            if (!String.IsNullOrEmpty(variable))
+            {
+                Console.WriteLine("Name: [{0}] Value: [{1}]", name, variable);
+            }
+            else
+            {
+                Console.WriteLine("Name: [{0}] No value", name);
+            }
+            
+        }
+
 
         [TestInitialize]
         public void Initialize()
         {
             var capabilities = ResolveCapabilities();
+
+            PrintVariable("SELENIUM_HOST");
+            PrintVariable("SELENIUM_PORT");
+            PrintVariable("SELENIUM_PLATFORM");
+            PrintVariable("SELENIUM_VERSION");
+            PrintVariable("SELENIUM_BROWSER");
+            PrintVariable("SELENIUM_DRIVER");
+            PrintVariable("SAUCE_ONDEMAND_BROWSERS");
+            PrintVariable("SELENIUM_URL");
+            PrintVariable("SAUCE_USER_NAME");
+            PrintVariable("SAUCE_API_KEY");
 
             capabilities.SetCapability("name", TestContext.TestName);
             capabilities.SetCapability("username", Properties.Settings.Default.SauceLabsAccountName);
