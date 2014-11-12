@@ -73,6 +73,9 @@ namespace TestMSTest
             if (String.IsNullOrEmpty(driver))
                 return data;
 
+            if (driver.StartsWith("sauce-ondemand"))
+                return data;
+
             Console.WriteLine("SELENIUM_DRIVER: [{0}]", driver);
 
             using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(driver)))

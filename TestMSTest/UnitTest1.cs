@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
@@ -13,10 +15,7 @@ namespace TestMSTest
     {
         public TestContext TestContext { get; set; }
 
-        private RemoteWebDriver _driver;
-        private readonly string _browser = "firefox";
-        private readonly string _version = "33";
-        private readonly string _platform = "Windows 7";
+        private List<RemoteWebDriver> _driver = new List<RemoteWebDriver>();
 
         private const bool RunLocally = false;
 
@@ -35,35 +34,39 @@ namespace TestMSTest
             
         }
 
+        private RemoteWebDriver CreateWebDriver(DesiredCapabilities capabilities)
+        {
+            RemoteWebDriver driver = null;
+            if(RunLocally)
+                driver = new FirefoxDriver();
+            else
+            {
+                var commandExecutorUri = new Uri("http://ondemand.saucelabs.com:80/wd/hub");
+                driver = new RemoteWebDriver(commandExecutorUri, capabilities);
+            }
+
+            driver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(30));
+            driver.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromSeconds(30));
+            driver.Navigate().GoToUrl(Properties.Settings.Default.TestSite);
+
+            return driver;
+        }
 
         [TestInitialize]
         public void Initialize()
         {
 
             var allCapabilities = OnDemandParser.ParseConfig();
-            var capabilities = allCapabilities.FirstOrDefault();
-            if(capabilities == null)
-                throw new Exception("Unable to resolve capabilities.");
-
             var credentials = OnDemandParser.UserInfo();
 
-            capabilities.SetCapability("name", TestContext.TestName);
-            capabilities.SetCapability("username", credentials.UserName);
-            capabilities.SetCapability("accessKey", credentials.ApiKey);
-
-            if (RunLocally)
+            foreach (var capabilities in allCapabilities)
             {
-                _driver = new FirefoxDriver();
-            }
-            else
-            {
-                var commandExecutorUri = new Uri("http://ondemand.saucelabs.com:80/wd/hub");
-                _driver = new RemoteWebDriver(commandExecutorUri, capabilities);
-            }
-            _driver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(30));
-            _driver.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromSeconds(30));
+                capabilities.SetCapability("name", TestContext.TestName);
+                capabilities.SetCapability("username", credentials.UserName);
+                capabilities.SetCapability("accessKey", credentials.ApiKey);
 
-            _driver.Navigate().GoToUrl(Properties.Settings.Default.TestSite);
+                _driver.Add(CreateWebDriver(capabilities));
+            }
         }
 
         [TestCleanup]
@@ -74,58 +77,78 @@ namespace TestMSTest
                 if (!RunLocally)
                 {
                     var passed = TestContext.CurrentTestOutcome == UnitTestOutcome.Passed;
-                    ((IJavaScriptExecutor)_driver).ExecuteScript("sauce:job-result=" + (passed ? "passed" : "failed"));
+                    foreach(var driver in _driver)
+                    {
+                        ((IJavaScriptExecutor)driver).ExecuteScript(
+                            "sauce:job-result=" + (passed ? "passed" : "failed"));
+                    }
                 }
             }
             finally
             {
-                _driver.Quit();
+                foreach (var driver in _driver)
+                    driver.Quit();
             }
         }
+
+        private void RunTest(Action<RemoteWebDriver> test)
+        {
+            foreach (var driver in _driver)
+            {
+                test(driver);
+            }
+        }
+
 
         [TestMethod]
         public void PageTitle()
         {
-            Assert.AreEqual("Bokadirekt", _driver.Title);
+            RunTest(d => Assert.AreEqual("Bokadirekt", d.Title));
         }
 
         [TestMethod]
         public void LinkWorks()
         {
-            var link = _driver.FindElement(By.Id("thumb-massage"));
-            link.Click();
+            RunTest(driver =>
+            {
+                var link = driver.FindElement(By.Id("thumb-massage"));
+                link.Click();
 
-            var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(30));
-            wait.Until(d => d.Url.Contains("Massage/Var/"));
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
+                wait.Until(d => d.Url.Contains("Massage/Var/"));
 
-            StringAssert.Contains(_driver.Url, "Massage/Var/");
+                StringAssert.Contains(driver.Url, "Massage/Var/");
 
-            var result = _driver.FindElement(By.ClassName("search-header")).Text;
-            Assert.IsNotNull(result);
+                var result = driver.FindElement(By.ClassName("search-header")).Text;
+                Assert.IsNotNull(result);
+            });
         }
 
         [TestMethod]
         public void SearchWorks()
         {
-            const string searchWhat = "Sjukgymnaster";
-            const string searchWhere = "Stockholm";
+            RunTest(driver =>
+            {
+                const string searchWhat = "Sjukgymnaster";
+                const string searchWhere = "Stockholm";
 
-            var searchWhatBox = _driver.FindElement(By.XPath("//input[contains(@id, 'txtSearchWhat')]"));
-            searchWhatBox.SendKeys(searchWhat);
-            var searchWhereBox = _driver.FindElement(By.XPath("//input[contains(@id, 'txtSearchWhere')]"));
-            searchWhereBox.SendKeys(searchWhere);
-            //            searchWhereBox.Submit();
-            var searchButton = _driver.FindElement(By.PartialLinkText("Sök"));
-            searchButton.Click();
+                var searchWhatBox = driver.FindElement(By.XPath("//input[contains(@id, 'txtSearchWhat')]"));
+                searchWhatBox.SendKeys(searchWhat);
+                var searchWhereBox = driver.FindElement(By.XPath("//input[contains(@id, 'txtSearchWhere')]"));
+                searchWhereBox.SendKeys(searchWhere);
+                //            searchWhereBox.Submit();
+                var searchButton = driver.FindElement(By.PartialLinkText("Sök"));
+                searchButton.Click();
 
-            string expectedUrl = String.Format("/{0}/{1}", searchWhat, searchWhere);
-            string expectedHeader = String.Format("{0} {1}", searchWhat, searchWhere);
+                string expectedUrl = String.Format("/{0}/{1}", searchWhat, searchWhere);
+                string expectedHeader = String.Format("{0} {1}", searchWhat, searchWhere);
 
-            var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(30));
-            wait.Until(d => d.Url.Contains(expectedUrl));
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
+                wait.Until(d => d.Url.Contains(expectedUrl));
 
-            StringAssert.Contains(_driver.Url, expectedUrl);
-            Assert.AreEqual(expectedHeader, _driver.Title);
+                StringAssert.Contains(driver.Url, expectedUrl);
+                Assert.AreEqual(expectedHeader, driver.Title);
+            });
         }
 
     }
