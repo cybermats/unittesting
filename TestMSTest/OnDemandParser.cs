@@ -69,8 +69,8 @@ namespace TestMSTest
         private static List<DesiredCapabilities> ParseOnDemand()
         {
             var data = new List<DesiredCapabilities>();
-            string driver = Environment.GetEnvironmentVariable("SELENIUM_DRIVER");
-            Console.WriteLine("SELENIUM_DRIVER: [{0}]", driver);
+            string driver = Environment.GetEnvironmentVariable("SAUCE_ONDEMAND_BROWSERS");
+            Console.WriteLine("SAUCE_ONDEMAND_BROWSERS: [{0}]", driver);
 
             if (String.IsNullOrEmpty(driver))
                 return data;
