@@ -73,7 +73,7 @@ namespace TestMSTest
             if (String.IsNullOrEmpty(driver))
                 return data;
 
-            
+            Console.WriteLine("SELENIUM_DRIVER: [{0}]", driver);
 
             using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(driver)))
             {
