@@ -60,6 +60,7 @@ namespace TestMSTest
             var credentials = OnDemandParser.UserInfo();
 
             Console.WriteLine("Found {0} settings.", allCapabilities.Count);
+            Assert.IsTrue(allCapabilities.Count > 0, "No capability settings found.");
 
             foreach (var capabilities in allCapabilities)
             {

@@ -102,6 +102,10 @@ namespace TestMSTest
             string browser = Environment.GetEnvironmentVariable("SELENIUM_BROWSER");
             string browserVersion = Environment.GetEnvironmentVariable("SELENIUM_VERSION");
 
+            Console.WriteLine("platform: [{0}]", platform);
+            Console.WriteLine("browser: [{0}]", browser);
+            Console.WriteLine("browserVersion: [{0}]", browserVersion);
+
             if (String.IsNullOrEmpty(platform) ||
                 String.IsNullOrEmpty(browser) ||
                 String.IsNullOrEmpty(browserVersion))
