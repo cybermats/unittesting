@@ -77,10 +77,17 @@ namespace TestMSTest
 
             using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(driver)))
             {
-                var ser = new DataContractJsonSerializer(typeof(OnDemandInfo[]));
-                var odis = (OnDemandInfo[]) ser.ReadObject(ms);
-                data.AddRange(odis.Select(odi => 
-                    ResolveCapabilities(odi.Browser, odi.Platform, odi.BrowserVersion)));
+                try
+                {
+                    var ser = new DataContractJsonSerializer(typeof(OnDemandInfo[]));
+                    var odis = (OnDemandInfo[])ser.ReadObject(ms);
+                    data.AddRange(odis.Select(odi =>
+                        ResolveCapabilities(odi.Browser, odi.Platform, odi.BrowserVersion)));
+                }
+                catch (System.Runtime.Serialization.SerializationException e)
+                {
+                    Console.WriteLine("Unable to deserialize json: " + e);
+                }
             }
             return data;
         }
