@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
@@ -19,32 +20,6 @@ namespace TestMSTest
 
         private const bool RunLocally = false;
 
-        private DesiredCapabilities ResolveCapabilities()
-        {
-            DesiredCapabilities caps = null;
-            if (_browser == "firefox")
-            {
-                caps = DesiredCapabilities.Firefox();
-            }
-            else if (_browser == "chrome")
-            {
-                caps = DesiredCapabilities.Chrome();
-            }
-            else if (_browser == "internet explorer")
-            {
-                caps = DesiredCapabilities.InternetExplorer();
-            }
-            else if (_browser == "safari")
-            {
-                caps = DesiredCapabilities.Safari();
-            }
-
-            Assert.IsNotNull(caps, "Unknown browser");
-            caps.SetCapability(CapabilityType.Platform, _platform);
-            caps.SetCapability(CapabilityType.Version, _version);
-            caps.SetCapability("browserName", _browser);
-            return caps;
-        }
 
         private void PrintVariable(string name)
         {
@@ -64,23 +39,17 @@ namespace TestMSTest
         [TestInitialize]
         public void Initialize()
         {
-            var capabilities = ResolveCapabilities();
 
-            PrintVariable("SELENIUM_HOST");
-            PrintVariable("SELENIUM_PORT");
-            PrintVariable("SELENIUM_PLATFORM");
-            PrintVariable("SELENIUM_VERSION");
-            PrintVariable("SELENIUM_BROWSER");
-            PrintVariable("SELENIUM_DRIVER");
-            PrintVariable("SAUCE_ONDEMAND_BROWSERS");
-            PrintVariable("SELENIUM_URL");
-            PrintVariable("SAUCE_USER_NAME");
-            PrintVariable("SAUCE_API_KEY");
+            var allCapabilities = OnDemandParser.ParseConfig();
+            var capabilities = allCapabilities.FirstOrDefault();
+            if(capabilities == null)
+                throw new Exception("Unable to resolve capabilities.");
+
+            var credentials = OnDemandParser.UserInfo();
 
             capabilities.SetCapability("name", TestContext.TestName);
-            capabilities.SetCapability("username", Properties.Settings.Default.SauceLabsAccountName);
-            capabilities.SetCapability("accessKey", Properties.Settings.Default.SauceLabsAccountKey);
-
+            capabilities.SetCapability("username", credentials.UserName);
+            capabilities.SetCapability("accessKey", credentials.ApiKey);
 
             if (RunLocally)
             {
