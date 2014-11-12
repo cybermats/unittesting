@@ -64,7 +64,6 @@ namespace TestMSTest
                 capabilities.SetCapability("name", TestContext.TestName);
                 capabilities.SetCapability("username", credentials.UserName);
                 capabilities.SetCapability("accessKey", credentials.ApiKey);
-
                 _driver.Add(CreateWebDriver(capabilities));
             }
         }
