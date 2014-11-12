@@ -59,6 +59,8 @@ namespace TestMSTest
             var allCapabilities = OnDemandParser.ParseConfig();
             var credentials = OnDemandParser.UserInfo();
 
+            Console.WriteLine("Found {0} settings.", allCapabilities.Count);
+
             foreach (var capabilities in allCapabilities)
             {
                 capabilities.SetCapability("name", TestContext.TestName);
