@@ -55,20 +55,11 @@ namespace TestMSTest
         [TestInitialize]
         public void Initialize()
         {
+            _driver = SauceOnDemandDriver.SauceOnDemandFactory.CreateWebDrivers(
+                Properties.Settings.Default.TestSite,
+                TestContext.TestName);
 
-            var allCapabilities = OnDemandParser.ParseConfig();
-            var credentials = OnDemandParser.UserInfo();
-
-            Console.WriteLine("Found {0} settings.", allCapabilities.Count);
-            Assert.IsTrue(allCapabilities.Count > 0, "No capability settings found.");
-
-            foreach (var capabilities in allCapabilities)
-            {
-                capabilities.SetCapability("name", TestContext.TestName);
-                capabilities.SetCapability("username", credentials.UserName);
-                capabilities.SetCapability("accessKey", credentials.ApiKey);
-                _driver.Add(CreateWebDriver(capabilities));
-            }
+            Assert.IsTrue(_driver.Count > 0, "No capability settings found.");
         }
 
         [TestCleanup]

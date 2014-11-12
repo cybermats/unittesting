@@ -78,6 +78,12 @@
     </None>
     <None Include="test.runsettings" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SauceOnDemandDriver\SauceOnDemandDriver.csproj">
+      <Project>{8a832909-6ff1-4582-ae74-01a714994b39}</Project>
+      <Name>SauceOnDemandDriver</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
