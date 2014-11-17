@@ -24,8 +24,8 @@ namespace SauceOnDemandDriver
         private const string SeleniumHost = "SELENIUM_HOST";
         private const string SeleniumPort = "SELENIUM_PORT";
 
-        private const string DefaultWebDriverHost = "";
-        private const string DefaultWebDriverPort = "";
+        private const string DefaultWebDriverHost = "ondemand.saucelabs.com";
+        private const string DefaultWebDriverPort = "80";
 
         private static readonly String[] NonProfileParameters= new String[]{AccessKey, Browser, BrowserVersion, Os, UserName};
 

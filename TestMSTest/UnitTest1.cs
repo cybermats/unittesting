@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
@@ -15,51 +12,69 @@ namespace TestMSTest
     {
         public TestContext TestContext { get; set; }
 
-        private List<RemoteWebDriver> _driver = new List<RemoteWebDriver>();
+        private RemoteWebDriver _driver;
+        private const string Browser = "firefox";
+        private const string Version = "33";
+        private const string Platform = "Windows 7";
 
         private const bool RunLocally = false;
 
-
-        private void PrintVariable(string name)
+        private static DesiredCapabilities ResolveCapabilities()
         {
-            string variable = Environment.GetEnvironmentVariable(name);
-            if (!String.IsNullOrEmpty(variable))
+            DesiredCapabilities caps;
+            // ReSharper disable CSharpWarnings::CS0162
+            // ReSharper disable HeuristicUnreachableCode
+            switch (Browser)
             {
-                Console.WriteLine("Name: [{0}] Value: [{1}]", name, variable);
+                case "firefox":
+                    caps = DesiredCapabilities.Firefox();
+                    break;
+                case "chrome":
+                    caps = DesiredCapabilities.Chrome();
+                    break;
+                case "internet explorer":
+                    caps = DesiredCapabilities.InternetExplorer();
+                    break;
+                case "safari":
+                    caps = DesiredCapabilities.Safari();
+                    break;
             }
-            else
-            {
-                Console.WriteLine("Name: [{0}] No value", name);
-            }
-            
+            // ReSharper restore HeuristicUnreachableCode
+            // ReSharper restore CSharpWarnings::CS0162
+
+            Assert.IsNotNull(caps, "Unknown browser");
+            caps.SetCapability(CapabilityType.Platform, Platform);
+            caps.SetCapability(CapabilityType.Version, Version);
+            caps.SetCapability("browserName", Browser);
+            return caps;
         }
 
-        private RemoteWebDriver CreateWebDriver(DesiredCapabilities capabilities)
-        {
-            RemoteWebDriver driver = null;
-            if(RunLocally)
-                driver = new FirefoxDriver();
-            else
-            {
-                var commandExecutorUri = new Uri("http://ondemand.saucelabs.com:80/wd/hub");
-                driver = new RemoteWebDriver(commandExecutorUri, capabilities);
-            }
-
-            driver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(30));
-            driver.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromSeconds(30));
-            driver.Navigate().GoToUrl(Properties.Settings.Default.TestSite);
-
-            return driver;
-        }
 
         [TestInitialize]
         public void Initialize()
         {
-            _driver = SauceOnDemandDriver.SauceOnDemandFactory.CreateWebDrivers(
-                Properties.Settings.Default.TestSite,
-                TestContext.TestName);
+            var capabilities = ResolveCapabilities();
 
-            Assert.IsTrue(_driver.Count > 0, "No capability settings found.");
+            capabilities.SetCapability("name", TestContext.TestName);
+            capabilities.SetCapability("username", Properties.Settings.Default.SauceLabsAccountName);
+            capabilities.SetCapability("accessKey", Properties.Settings.Default.SauceLabsAccountKey);
+
+
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            // ReSharper disable once CSharpWarnings::CS0162
+            // ReSharper disable once HeuristicUnreachableCode
+            // ReSharper disable once RedundantIfElseBlock
+            if (RunLocally)
+                _driver = new FirefoxDriver();
+            else
+            {
+                var commandExecutorUri = new Uri("http://ondemand.saucelabs.com:80/wd/hub");
+                _driver = new RemoteWebDriver(commandExecutorUri, capabilities);
+            }
+            _driver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(30));
+            _driver.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromSeconds(30));
+
+            _driver.Navigate().GoToUrl(Properties.Settings.Default.TestSite);
         }
 
         [TestCleanup]
@@ -67,81 +82,62 @@ namespace TestMSTest
         {
             try
             {
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 if (!RunLocally)
                 {
                     var passed = TestContext.CurrentTestOutcome == UnitTestOutcome.Passed;
-                    foreach(var driver in _driver)
-                    {
-                        ((IJavaScriptExecutor)driver).ExecuteScript(
-                            "sauce:job-result=" + (passed ? "passed" : "failed"));
-                    }
+                    ((IJavaScriptExecutor)_driver).ExecuteScript("sauce:job-result=" + (passed ? "passed" : "failed"));
                 }
             }
             finally
             {
-                foreach (var driver in _driver)
-                    driver.Quit();
+                _driver.Quit();
             }
         }
-
-        private void RunTest(Action<RemoteWebDriver> test)
-        {
-            foreach (var driver in _driver)
-            {
-                test(driver);
-            }
-        }
-
 
         [TestMethod]
         public void PageTitle()
         {
-            RunTest(d => Assert.AreEqual("Bokadirekt", d.Title));
+            Assert.AreEqual("Bokadirekt", _driver.Title);
         }
 
         [TestMethod]
         public void LinkWorks()
         {
-            RunTest(driver =>
-            {
-                var link = driver.FindElement(By.Id("thumb-massage"));
-                link.Click();
+            var link = _driver.FindElement(By.Id("thumb-massage"));
+            link.Click();
 
-                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
-                wait.Until(d => d.Url.Contains("Massage/Var/"));
+            var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(30));
+            wait.Until(d => d.Url.Contains("Massage/Var/"));
 
-                StringAssert.Contains(driver.Url, "Massage/Var/");
+            StringAssert.Contains(_driver.Url, "Massage/Var/");
 
-                var result = driver.FindElement(By.ClassName("search-header")).Text;
-                Assert.IsNotNull(result);
-            });
+            var result = _driver.FindElement(By.ClassName("search-header")).Text;
+            Assert.IsNotNull(result);
         }
 
         [TestMethod]
         public void SearchWorks()
         {
-            RunTest(driver =>
-            {
-                const string searchWhat = "Sjukgymnaster";
-                const string searchWhere = "Stockholm";
+            const string searchWhat = "Sjukgymnaster";
+            const string searchWhere = "Stockholm";
 
-                var searchWhatBox = driver.FindElement(By.XPath("//input[contains(@id, 'txtSearchWhat')]"));
-                searchWhatBox.SendKeys(searchWhat);
-                var searchWhereBox = driver.FindElement(By.XPath("//input[contains(@id, 'txtSearchWhere')]"));
-                searchWhereBox.SendKeys(searchWhere);
-                //            searchWhereBox.Submit();
-                var searchButton = driver.FindElement(By.PartialLinkText("Sök"));
-                searchButton.Click();
+            var searchWhatBox = _driver.FindElement(By.XPath("//input[contains(@id, 'txtSearchWhat')]"));
+            searchWhatBox.SendKeys(searchWhat);
+            var searchWhereBox = _driver.FindElement(By.XPath("//input[contains(@id, 'txtSearchWhere')]"));
+            searchWhereBox.SendKeys(searchWhere);
+            //            searchWhereBox.Submit();
+            var searchButton = _driver.FindElement(By.PartialLinkText("Sök"));
+            searchButton.Click();
 
-                string expectedUrl = String.Format("/{0}/{1}", searchWhat, searchWhere);
-                string expectedHeader = String.Format("{0} {1}", searchWhat, searchWhere);
+            string expectedUrl = String.Format("/{0}/{1}", searchWhat, searchWhere);
+            string expectedHeader = String.Format("{0} {1}", searchWhat, searchWhere);
 
-                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
-                wait.Until(d => d.Url.Contains(expectedUrl));
+            var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(30));
+            wait.Until(d => d.Url.Contains(expectedUrl));
 
-                StringAssert.Contains(driver.Url, expectedUrl);
-                Assert.AreEqual(expectedHeader, driver.Title);
-            });
+            StringAssert.Contains(_driver.Url, expectedUrl);
+            Assert.AreEqual(expectedHeader, _driver.Title);
         }
 
     }
