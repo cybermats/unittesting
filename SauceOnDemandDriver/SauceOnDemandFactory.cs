@@ -97,7 +97,7 @@ namespace SauceOnDemandDriver
                 string browser = paramMap[Browser].First();
                 desiredCapabilities = ResolveCapabilities(browser);
                 desiredCapabilities.SetCapability(CapabilityType.Version, paramMap[BrowserVersion].First());
-                desiredCapabilities.SetCapability(CapabilityType.Platform, paramMap[Platform].First());
+                desiredCapabilities.SetCapability(CapabilityType.Platform, paramMap[Os].First());
                 if (browser == "firefox")
                     SetFirefoxProfile(paramMap, desiredCapabilities);
                 desiredCapabilities.SetCapability("name", jobName);
