@@ -31,6 +31,7 @@ namespace SauceOnDemandDriver
 
         private static Dictionary<string, List<string>> PopulateParameterMap(string uri)
         {
+            Console.WriteLine("uri: {0}", uri);
             var paramMap = new Dictionary<string, List<string>>();
             foreach (string param in uri.Substring(1).Split('&'))
             {
@@ -39,6 +40,7 @@ namespace SauceOnDemandDriver
                     throw new Exception("Invalid parameter format: " + uri);
                 string key = param.Substring(0, idx);
                 string value = param.Substring(idx + 1);
+                Console.WriteLine("Resolving: [{0}] = [{1}]", key, value);
 
                 List<string> v;
                 if (!paramMap.TryGetValue(key, out v))
