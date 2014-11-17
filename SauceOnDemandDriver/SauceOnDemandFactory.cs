@@ -115,11 +115,13 @@ namespace SauceOnDemandDriver
             if (String.IsNullOrEmpty(portAsString))
                 portAsString = DefaultWebDriverPort;
 
+            string tempUri = String.Format("http://{2}:{3}@{0}:{1}/wd/hub",
+                host, portAsString,
+                paramMap[UserName].First(),
+                paramMap[AccessKey].First());
+            Console.WriteLine("TempUri: [{0}]", tempUri);
             RemoteWebDriver driver = new SodRemoteWebDriver(
-                new Uri(String.Format("http://{2}:{3}@{0}:{1}/wd/hub",
-                    host, portAsString,
-                    paramMap[UserName].First(),
-                    paramMap[AccessKey].First())),
+                new Uri(tempUri),
                     desiredCapabilities
                 );
             if(!String.IsNullOrEmpty(browserUrl))
