@@ -100,7 +100,7 @@ namespace TestMSTest
         {
             Assert.AreEqual("Bokadirekt", _driver.Title);
         }
-
+        /*
         [TestMethod]
         public void LinkWorks()
         {
@@ -139,6 +139,6 @@ namespace TestMSTest
             StringAssert.Contains(_driver.Url, expectedUrl);
             Assert.AreEqual(expectedHeader, _driver.Title);
         }
-
+        */
     }
 }

@@ -101,6 +101,7 @@ namespace TestNunit
             }
         }
 
+        /*
         [Test]
         public void PageTitle()
         {
@@ -144,5 +145,6 @@ namespace TestNunit
             StringAssert.Contains(expectedUrl, _driver.Url);
             Assert.AreEqual(expectedHeader, _driver.Title);
         }
+         */
     }
 }
