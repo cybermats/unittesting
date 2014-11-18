@@ -17,7 +17,7 @@ namespace TestMSTest
         private const string Version = "33";
         private const string Platform = "Windows 7";
 
-        private const bool RunLocally = false;
+        private const bool RunLocally = true;
 
         private static DesiredCapabilities ResolveCapabilities()
         {
